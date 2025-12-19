@@ -69,24 +69,29 @@
 
         let model, webcam, labelContainer, maxPredictions;
 
-        async function init() {
+       async function init() {
             const modelURL = URL + "model.json";
             const metadataURL = URL + "metadata.json";
 
             model = await tmImage.load(modelURL, metadataURL);
             maxPredictions = model.getTotalClasses();
 
-            // กล้องหลังใช้ flip = false นะคะ
             const flip = false; 
             webcam = new tmImage.Webcam(300, 300, flip); 
 
-            // สั่งให้ระบบเลือกใช้กล้องหลัง (environment)
-            // ถ้าคุณพี่อยากใช้กล้องหน้าเหมือนเดิม ให้เปลี่ยนเป็น "user" นะจ๊ะ
-            try {
-                await webcam.setup({ facingMode: "environment" }); 
-                await webcam.play();
-                window.requestAnimationFrame(loop);
+            // มะลิปรับตรงนี้ให้ "เข้มข้น" ขึ้นค่ะ
+            const constraints = {
+                video: {
+                    facingMode: { exact: "environment" } // บังคับว่าต้องกล้องหลังเท่านั้น!
+                }
+            };
 
+            try {
+                // ใส่ constraints ลงไปในตอน setup
+                await webcam.setup(constraints); 
+                await webcam.play();
+                // ... ส่วนที่เหลือเหมือนเดิมเลยค่ะ ...
+                window.requestAnimationFrame(loop);
                 document.getElementById("webcam-container").innerHTML = "";
                 document.getElementById("webcam-container").appendChild(webcam.canvas);
                 
@@ -118,4 +123,5 @@
     </script>
 </body>
 </html>
+
 
