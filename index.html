@@ -79,31 +79,27 @@
             const flip = false; 
             webcam = new tmImage.Webcam(400, 400, flip); 
 
-            // มะลิปรับตรงนี้ให้ "เข้มข้น" ขึ้นค่ะ
-            const constraints = {
-                video: {
-                    facingMode: { exact: "environment" } // บังคับว่าต้องกล้องหลังเท่านั้น!
-                }
-            };
+           // มะลิเปลี่ยนมาใช้แบบไม่บังคับ (Non-exact) เพื่อลดโอกาส Error ค่ะ
+            await webcam.setup({ facingMode: "environment" }); 
+            
+            await webcam.play();
+            window.requestAnimationFrame(loop);
 
-            try {
-                // ใส่ constraints ลงไปในตอน setup
-                await webcam.setup(constraints); 
-                await webcam.play();
-                // ... ส่วนที่เหลือเหมือนเดิมเลยค่ะ ...
-                window.requestAnimationFrame(loop);
-                document.getElementById("webcam-container").innerHTML = "";
-                document.getElementById("webcam-container").appendChild(webcam.canvas);
-                
-                labelContainer = document.getElementById("label-container");
-                labelContainer.innerHTML = "";
-                for (let i = 0; i < maxPredictions; i++) {
-                    labelContainer.appendChild(document.createElement("div"));
-                }
-            } catch (e) {
-                alert("อุ๊ย! เปิดกล้องหลังไม่ได้ค่ะคุณพี่ ลองเช็ค Permissions หรือยังคะ?");
-                console.error(e);
+            // เคลียร์หน้าจอเดิมก่อนแปะอันใหม่
+            const container = document.getElementById("webcam-container");
+            container.innerHTML = "";
+            container.appendChild(webcam.canvas);
+
+            labelContainer = document.getElementById("label-container");
+            labelContainer.innerHTML = "";
+            for (let i = 0; i < maxPredictions; i++) {
+                labelContainer.appendChild(document.createElement("div"));
             }
+        } catch (e) {
+            console.error(e);
+            // ถ้าเปิดไม่ได้จริงๆ ให้แจ้งเตือนแบบนุ่มนวล
+            alert("อุ๊ย! กล้องขัดข้องนิดหน่อยค่ะคุณพี่ ลองปิดแอปแล้วเปิดใหม่ดูนะจ๊ะ");
+        }
         }
 
         async function loop() {
@@ -123,6 +119,7 @@
     </script>
 </body>
 </html>
+
 
 
 
