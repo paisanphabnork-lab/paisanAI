@@ -64,8 +64,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
     
-    <script type="text/javascript">
-        // ลิงก์โมเดลสุดล้ำของคุณพี่
+   <script type="text/javascript">
         const URL = "https://teachablemachine.withgoogle.com/models/uj70MBj59/";
 
         let model, webcam, labelContainer, maxPredictions;
@@ -74,25 +73,31 @@
             const modelURL = URL + "model.json";
             const metadataURL = URL + "metadata.json";
 
-            // โหลดโมเดล
             model = await tmImage.load(modelURL, metadataURL);
             maxPredictions = model.getTotalClasses();
 
-            // ตั้งค่ากล้อง (ปรับขนาดเป็น 300x300 ให้เต็มตาขึ้น)
-            const flip = true; 
+            // กล้องหลังใช้ flip = false นะคะ
+            const flip = false; 
             webcam = new tmImage.Webcam(300, 300, flip); 
-            await webcam.setup(); 
-            await webcam.play();
-            window.requestAnimationFrame(loop);
 
-            // เอาจอภาพไปแปะในเว็บ
-            document.getElementById("webcam-container").innerHTML = ""; // ล้างค่าเก่า
-            document.getElementById("webcam-container").appendChild(webcam.canvas);
-            
-            labelContainer = document.getElementById("label-container");
-            labelContainer.innerHTML = ""; // ล้างค่าเก่าก่อนสร้างใหม่
-            for (let i = 0; i < maxPredictions; i++) {
-                labelContainer.appendChild(document.createElement("div"));
+            // สั่งให้ระบบเลือกใช้กล้องหลัง (environment)
+            // ถ้าคุณพี่อยากใช้กล้องหน้าเหมือนเดิม ให้เปลี่ยนเป็น "user" นะจ๊ะ
+            try {
+                await webcam.setup({ facingMode: "environment" }); 
+                await webcam.play();
+                window.requestAnimationFrame(loop);
+
+                document.getElementById("webcam-container").innerHTML = "";
+                document.getElementById("webcam-container").appendChild(webcam.canvas);
+                
+                labelContainer = document.getElementById("label-container");
+                labelContainer.innerHTML = "";
+                for (let i = 0; i < maxPredictions; i++) {
+                    labelContainer.appendChild(document.createElement("div"));
+                }
+            } catch (e) {
+                alert("อุ๊ย! เปิดกล้องหลังไม่ได้ค่ะคุณพี่ ลองเช็ค Permissions หรือยังคะ?");
+                console.error(e);
             }
         }
 
@@ -113,3 +118,4 @@
     </script>
 </body>
 </html>
+
